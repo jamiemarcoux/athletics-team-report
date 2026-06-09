@@ -121,6 +121,19 @@
             box-shadow: 0 0 5px rgba(0,61,130,0.3);
         }
         
+        input.error,
+        textarea.error {
+            border-color: #d9534f;
+            background-color: #fff5f5;
+        }
+        
+        .error-message {
+            color: #d9534f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+        
         textarea {
             resize: vertical;
             min-height: 80px;
@@ -247,6 +260,15 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+        
+        .error-alert {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -265,6 +287,8 @@
             <div class="progress-item" onclick="goToPage(5)">Page 5: Alumni & Assessment</div>
         </div>
         
+        <div id="validationErrors"></div>
+        
         <form id="athleticsForm">
             <!-- PAGE 1 -->
             <div id="page1" class="page active">
@@ -274,15 +298,18 @@
                         <div class="form-group">
                             <label for="sport">Sport <span class="required">*</span></label>
                             <input type="text" id="sport" name="sport" required>
+                            <span class="error-message" id="sport-error"></span>
                         </div>
                         <div class="form-group">
                             <label for="head_coach">Head Coach <span class="required">*</span></label>
                             <input type="text" id="head_coach" name="head_coach" required>
+                            <span class="error-message" id="head_coach-error"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="academic_year">Academic Year <span class="required">*</span></label>
                         <input type="text" id="academic_year" name="academic_year" placeholder="e.g., 2025-2026" required>
+                        <span class="error-message" id="academic_year-error"></span>
                     </div>
                 </div>
                 
@@ -292,25 +319,30 @@
                         <div class="form-group">
                             <label for="roster_total">Total Roster Size <span class="required">*</span></label>
                             <input type="number" id="roster_total" name="roster_total" required>
+                            <span class="error-message" id="roster_total-error"></span>
                         </div>
                         <div class="form-group">
                             <label for="roster_returning">Returning Student-Athletes <span class="required">*</span></label>
                             <input type="number" id="roster_returning" name="roster_returning" required>
+                            <span class="error-message" id="roster_returning-error"></span>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="roster_graduating">Graduating Student-Athletes <span class="required">*</span></label>
                             <input type="number" id="roster_graduating" name="roster_graduating" required>
+                            <span class="error-message" id="roster_graduating-error"></span>
                         </div>
                         <div class="form-group">
                             <label for="roster_not_returning">Student-Athletes Not Returning <span class="required">*</span></label>
                             <input type="number" id="roster_not_returning" name="roster_not_returning" required>
+                            <span class="error-message" id="roster_not_returning-error"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="retention_rate">Retention Rate (%) <span class="required">*</span></label>
-                        <input type="number" id="retention_rate" name="retention_rate" min="0" max="100" required>
+                        <input type="number" id="retention_rate" name="retention_rate" min="0" max="100" readonly>
+                        <span class="error-message" id="retention_rate-error"></span>
                     </div>
                 </div>
                 
@@ -494,15 +526,18 @@
                         <div class="form-group">
                             <label for="fall_gpa">Fall Team GPA</label>
                             <input type="number" id="fall_gpa" name="fall_gpa" step="0.01" min="0" max="4">
+                            <span class="error-message" id="fall_gpa-error"></span>
                         </div>
                         <div class="form-group">
                             <label for="spring_gpa">Spring Team GPA</label>
                             <input type="number" id="spring_gpa" name="spring_gpa" step="0.01" min="0" max="4">
+                            <span class="error-message" id="spring_gpa-error"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="annual_gpa">Academic Year GPA</label>
-                        <input type="number" id="annual_gpa" name="annual_gpa" step="0.01" min="0" max="4">
+                        <input type="number" id="annual_gpa" name="annual_gpa" step="0.01" min="0" max="4" readonly>
+                        <span class="error-message" id="annual_gpa-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="academic_highlights">Academic Highlights</label>
@@ -695,6 +730,9 @@
             
             // Scroll to top
             window.scrollTo(0, 0);
+            
+            // Clear validation errors
+            clearValidationErrors();
         }
         
         function goToPage(pageNum) {
@@ -715,6 +753,160 @@
                 showPage(currentPage);
             }
         }
+        
+        // Validation Functions
+        function validateRequired() {
+            const requiredFields = document.querySelectorAll('[required]');
+            const errors = {};
+            
+            requiredFields.forEach(field => {
+                if (!field.value || field.value.trim() === '') {
+                    errors[field.id] = `${field.previousElementSibling.textContent.replace('*', '').trim()} is required`;
+                }
+            });
+            
+            return errors;
+        }
+        
+        function validateRosterData() {
+            const errors = {};
+            const total = parseInt(document.getElementById('roster_total').value) || 0;
+            const returning = parseInt(document.getElementById('roster_returning').value) || 0;
+            const graduating = parseInt(document.getElementById('roster_graduating').value) || 0;
+            const notReturning = parseInt(document.getElementById('roster_not_returning').value) || 0;
+            
+            if (total > 0) {
+                const sum = returning + graduating + notReturning;
+                if (sum > total) {
+                    errors['roster_consistency'] = 'Sum of athletes cannot exceed total roster size';
+                }
+            }
+            
+            return errors;
+        }
+        
+        function validateGPAData() {
+            const errors = {};
+            const fallGPA = parseFloat(document.getElementById('fall_gpa').value) || 0;
+            const springGPA = parseFloat(document.getElementById('spring_gpa').value) || 0;
+            
+            if (fallGPA > 0 && (fallGPA < 0 || fallGPA > 4.0)) {
+                errors['fall_gpa'] = 'GPA must be between 0.0 and 4.0';
+            }
+            if (springGPA > 0 && (springGPA < 0 || springGPA > 4.0)) {
+                errors['spring_gpa'] = 'GPA must be between 0.0 and 4.0';
+            }
+            
+            return errors;
+        }
+        
+        function validateForm() {
+            const allErrors = {
+                ...validateRequired(),
+                ...validateRosterData(),
+                ...validateGPAData()
+            };
+            
+            return allErrors;
+        }
+        
+        function clearValidationErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+            });
+            document.querySelectorAll('input.error, textarea.error').forEach(el => {
+                el.classList.remove('error');
+            });
+            document.getElementById('validationErrors').innerHTML = '';
+        }
+        
+        function displayValidationErrors(errors) {
+            clearValidationErrors();
+            
+            if (Object.keys(errors).length === 0) {
+                return true;
+            }
+            
+            // Display error summary
+            const errorList = Object.entries(errors).map(([key, msg]) => `<li>${msg}</li>`).join('');
+            document.getElementById('validationErrors').innerHTML = `<div class="error-alert"><strong>Please fix the following errors:</strong><ul>${errorList}</ul></div>`;
+            
+            // Highlight specific fields
+            Object.keys(errors).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.classList.add('error');
+                    const errorEl = document.getElementById(`${fieldId}-error`);
+                    if (errorEl) {
+                        errorEl.textContent = errors[fieldId];
+                    }
+                } else if (fieldId === 'roster_consistency') {
+                    // This is a cross-field error, highlight all roster fields
+                    ['roster_total', 'roster_returning', 'roster_graduating', 'roster_not_returning'].forEach(id => {
+                        document.getElementById(id).classList.add('error');
+                    });
+                }
+            });
+            
+            // Scroll to first error
+            const firstError = Object.keys(errors)[0];
+            if (firstError && document.getElementById(firstError)) {
+                document.getElementById(firstError).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            return false;
+        }
+        
+        // Calculate totals and fields
+        function calculateRetentionRate() {
+            const total = parseInt(document.getElementById('roster_total').value) || 0;
+            const returning = parseInt(document.getElementById('roster_returning').value) || 0;
+            
+            if (total > 0) {
+                const rate = (returning / total) * 100;
+                document.getElementById('retention_rate').value = rate.toFixed(1);
+            } else {
+                document.getElementById('retention_rate').value = '';
+            }
+        }
+        
+        function calculateAnnualGPA() {
+            const fall = parseFloat(document.getElementById('fall_gpa').value) || 0;
+            const spring = parseFloat(document.getElementById('spring_gpa').value) || 0;
+            
+            if (fall > 0 && spring > 0) {
+                const annual = (fall + spring) / 2;
+                document.getElementById('annual_gpa').value = annual.toFixed(2);
+            } else {
+                document.getElementById('annual_gpa').value = '';
+            }
+        }
+        
+        function calculateServiceHours() {
+            const serviceHours = document.querySelectorAll('.service-hours');
+            let totalHours = 0;
+            serviceHours.forEach(input => {
+                totalHours += parseFloat(input.value) || 0;
+            });
+            document.getElementById('total_service_hours').value = totalHours.toFixed(2);
+        }
+        
+        function calculateFundraisingTotal() {
+            const fundraisingAmounts = document.querySelectorAll('.fundraising-amount');
+            let totalFunds = 0;
+            fundraisingAmounts.forEach(input => {
+                totalFunds += parseFloat(input.value) || 0;
+            });
+            document.getElementById('fundraising_total').value = totalFunds.toFixed(2);
+        }
+        
+        // Event listeners for calculations
+        document.addEventListener('change', function() {
+            calculateRetentionRate();
+            calculateAnnualGPA();
+            calculateServiceHours();
+            calculateFundraisingTotal();
+        });
         
         // Table management functions
         function addDepartingRow() {
@@ -765,38 +957,39 @@
             `;
         }
         
-        // Calculate totals
-        document.addEventListener('change', function() {
-            // Calculate service hours
-            const serviceHours = document.querySelectorAll('.service-hours');
-            let totalHours = 0;
-            serviceHours.forEach(input => {
-                totalHours += parseFloat(input.value) || 0;
-            });
-            document.getElementById('total_service_hours').value = totalHours.toFixed(2);
-            
-            // Calculate fundraising total
-            const fundraisingAmounts = document.querySelectorAll('.fundraising-amount');
-            let totalFunds = 0;
-            fundraisingAmounts.forEach(input => {
-                totalFunds += parseFloat(input.value) || 0;
-            });
-            document.getElementById('fundraising_total').value = totalFunds.toFixed(2);
-        });
-        
         // Form submission
         document.getElementById('athleticsForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Validate form
+            const errors = validateForm();
+            if (!displayValidationErrors(errors)) {
+                return;
+            }
+            
+            // Update calculated fields
+            calculateRetentionRate();
+            calculateAnnualGPA();
+            calculateServiceHours();
+            calculateFundraisingTotal();
             
             // Collect form data
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Log or send data (in a real application, this would be sent to a server)
+            // Log submission
             console.log('Form Data:', data);
             
             // Show success message
-            alert('Form submitted successfully!\n\nForm data has been logged to the console.');
+            clearValidationErrors();
+            document.getElementById('validationErrors').innerHTML = '<div class="success-message"><strong>✓ Form submitted successfully!</strong><br>Your athletics team report has been submitted and logged to the console.</div>';
+            
+            // Optional: Send to server
+            // fetch('/api/submit-athletics-form', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(data)
+            // })
         });
         
         // Initialize
