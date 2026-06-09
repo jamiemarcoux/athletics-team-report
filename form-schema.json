@@ -1,0 +1,104 @@
+{
+  "formMetadata": {
+    "title": "Athletics Team Year-End Summary Report",
+    "version": "1.0",
+    "description": "Comprehensive annual athletic program reporting form",
+    "totalPages": 5,
+    "createdDate": "2026-06-09"
+  },
+  "pages": [
+    {
+      "pageNumber": 1,
+      "title": "Team Information, Roster & Retention",
+      "sections": [
+        {
+          "sectionTitle": "Team Information",
+          "fields": [
+            {"fieldName": "sport", "label": "Sport", "type": "text", "required": true, "maxLength": 100},
+            {"fieldName": "head_coach", "label": "Head Coach", "type": "text", "required": true, "maxLength": 100},
+            {"fieldName": "academic_year", "label": "Academic Year", "type": "text", "required": true, "maxLength": 20}
+          ]
+        },
+        {
+          "sectionTitle": "Roster Summary",
+          "fields": [
+            {"fieldName": "roster_total", "label": "Total Roster Size", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "roster_returning", "label": "Returning Student-Athletes", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "roster_graduating", "label": "Graduating Student-Athletes", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "roster_not_returning", "label": "Student-Athletes Not Returning", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "retention_rate", "label": "Retention Rate (%)", "type": "number", "readOnly": true, "calculated": true, "formula": "(roster_returning / roster_total) * 100"}
+          ]
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "title": "Recruiting & Competitive Performance",
+      "sections": [
+        {
+          "sectionTitle": "Recruiting Summary",
+          "fields": [
+            {"fieldName": "recruits_committed", "label": "Committed Recruits", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "recruits_first_year", "label": "Incoming First-Year", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "recruits_transfer", "label": "Incoming Transfer", "type": "number", "required": true, "minimum": 0}
+          ]
+        },
+        {
+          "sectionTitle": "Competitive Performance",
+          "fields": [
+            {"fieldName": "overall_record", "label": "Overall Record", "type": "text", "required": true, "maxLength": 20},
+            {"fieldName": "conference_record", "label": "Conference Record", "type": "text", "required": true, "maxLength": 20},
+            {"fieldName": "conference_finish", "label": "Conference Finish", "type": "text", "required": true, "maxLength": 100}
+          ]
+        }
+      ]
+    },
+    {
+      "pageNumber": 3,
+      "title": "Awards & Recognition",
+      "sections": [
+        {
+          "sectionTitle": "All-Conference Honors",
+          "fields": [
+            {"fieldName": "allconf_name_1", "label": "Student-Athlete Name", "type": "text", "maxLength": 100},
+            {"fieldName": "allconf_honor_1", "label": "Honor Type", "type": "text", "maxLength": 100}
+          ]
+        }
+      ]
+    },
+    {
+      "pageNumber": 4,
+      "title": "Academics & Community",
+      "sections": [
+        {
+          "sectionTitle": "Academic Success",
+          "fields": [
+            {"fieldName": "fall_gpa", "label": "Fall Team GPA", "type": "number", "required": true, "minimum": 0, "maximum": 4.0, "step": 0.01},
+            {"fieldName": "spring_gpa", "label": "Spring Team GPA", "type": "number", "required": true, "minimum": 0, "maximum": 4.0, "step": 0.01},
+            {"fieldName": "annual_gpa", "label": "Academic Year GPA", "type": "number", "readOnly": true, "calculated": true, "formula": "(fall_gpa + spring_gpa) / 2"}
+          ]
+        }
+      ]
+    },
+    {
+      "pageNumber": 5,
+      "title": "Alumni, Fundraising & Assessment",
+      "sections": [
+        {
+          "sectionTitle": "Alumni Engagement",
+          "fields": [
+            {"fieldName": "alumni_events", "label": "Number of Alumni Events", "type": "number", "required": true, "minimum": 0},
+            {"fieldName": "alumni_participation", "label": "Alumni Participation", "type": "number", "required": true, "minimum": 0}
+          ]
+        },
+        {
+          "sectionTitle": "Signature",
+          "fields": [
+            {"fieldName": "coach_signature", "label": "Head Coach Signature", "type": "signature", "required": true},
+            {"fieldName": "signature_date", "label": "Date", "type": "date", "required": true}
+          ]
+        }
+      ]
+    }
+  ]
+}
